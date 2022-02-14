@@ -1,7 +1,7 @@
 const {UnauthorizedError} = require('../errors')
 
-const checkPermissions = (requestUser,resourceUserId) => {
-    if(requestUser.role === 'admin' || requestUser.userId === resourceUserId.toString()){
+const checkPermissions = (requestUser,resourceUser) => {
+    if(requestUser.role === 'admin' || requestUser.username === resourceUser){
         return
     }
     throw new UnauthorizedError('Access forbidden')

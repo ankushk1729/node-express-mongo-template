@@ -2,7 +2,7 @@ const { StatusCodes } = require('http-status-codes')
 const Post = require('../models/Post')
 const Comment = require('../models/Comment')
 const User = require('../models/User')
-const {NotFoundError} = require('../errors')
+const {NotFoundError, BadRequestError} = require('../errors')
 const checkPermissions = require('../utils/checkPermissions')
 
 const getAllPosts = async (req,res) => {
@@ -23,22 +23,26 @@ const getPost = async(req,res) => {
     res.status(StatusCodes.OK).json({post})
 }
 const createPost = async(req,res) => {
-    req.body.createdBy = req.user.userId
+    console.log(req.user.username)
+    req.body.createdBy = req.user.username
+
     const post = await Post.create(req.body)
     res.status(StatusCodes.CREATED).json({post})
 }
 const likeDislikePost = async(req,res) => {
     const {
-        user: { userId },
-        params: { id: postId },
-      } = req
+      user: { username },
+      params: { id: postId },
+    } = req
     const post = await Post.findOne({_id:postId})
-    if(!post.likes.includes(userId)){
-        post.likes.push(userId)
+    if(!post) throw new NotFoundError(`No post with ${postId} to like/unlike`)
+    if(!post.likes.includes(username)){
+      post.likes.push(username)
     }
     else{
-        post.likes = post.likes.filter(item=>item!=userId)
+      post.likes = post.likes.filter(item=>item!=username)
     }
+    
     post.save()
     res.status(StatusCodes.OK).json({likes:post.likes.length})
 }
@@ -50,21 +54,23 @@ const getPostComments = async (req,res) =>{
 }
 const commentOnPost = async(req,res) => {
     const {
-        user: { userId },
-        params: { id: postId },
-        body:{text}
-      } = req
+      user: { username },
+      params: { id: postId },
+      body:{text}
+    } = req
     const isPostValid = await Post.exists({_id:postId})
     if(!isPostValid) throw new NotFoundError(`No post with id ${postId}`)
-    const comment = await Comment.create({user:userId,post:postId,text})
+    const comment = await Comment.create({user:username,post:postId,text})
+
     res.status(StatusCodes.CREATED).json({msg:"Comment added"})
 }
 const deletePost = async (req,res) => {
-     const {
-        user: { userId },
-        params: { id: postId },
-      } = req
+    const {
+      user: { username },
+      params: { id: postId },
+    } = req
     const post = await Post.findOne({_id:postId})
+
     checkPermissions(req.user,post.createdBy)
     if(!post)
       throw new NotFoundError(`No post with id ${postId}`)
@@ -79,14 +85,14 @@ const getTimelinePosts = async (req,res) => {
   if(sort === 'recent') sortKey = '-createdAt'
   let posts = []
   if(sort === 'following'){
-    const result = await User.findOne({_id:req.user.userId}).select('following')
+    const result = await User.findOne({_id:req.user.username}).select('following')
     let following = result.following
     posts = await Post.find({createdBy:following}).sort('-createdAt')
   }
   else posts = await Post.find({}).sort(sortKey)
 
 
-  
+  // These are old comments (not of changing id to username)
   // const allPosts = await Post.find({createdBy:{$nin:following}}).limit(10).sort('-createdAt')
   // const timelinePosts = [...followingPosts,...allPosts]
   // if(timelinePosts.length === 0) throw new NotFoundError('No posts')

@@ -4,10 +4,10 @@ const {getAllUsers,getUser,followUnfollowUser, getUserComments,getUserPosts} = r
 const {auth,authorizePermissions} = require('../middlewares/authentication')
 
 router.route('/').get([auth,authorizePermissions('admin')],getAllUsers)
-router.route('/:id').get(auth,getUser)
-router.route('/:id/follow').patch(auth,followUnfollowUser)
-router.route('/:id/comments').get(auth,getUserComments)
-router.route('/:id/posts').get(getUserPosts)
+router.route('/:username').get(auth,getUser)
+router.route('/:otherUsername/follow').patch(auth,followUnfollowUser)
+router.route('/:username/comments').get(auth,getUserComments)
+router.route('/:username/posts').get(getUserPosts)
 
 
 module.exports = router

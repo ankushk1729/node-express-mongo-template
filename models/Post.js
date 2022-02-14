@@ -11,11 +11,12 @@ const PostSchema = new mongoose.Schema({
     likes:{
         type:Array,
     },
+
     createdBy:{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:'User',
+        type:String,
         required:[true,'Please provide user']
     },
+    
     numOfComments:{
         type:Number,
         default:0

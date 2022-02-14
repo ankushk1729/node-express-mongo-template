@@ -5,26 +5,28 @@ const checkPermissions = require('../utils/checkPermissions')
 
 const likeDislikeComment = async(req,res) => {
     const {
-        user: { userId },
+        user: { username },
         params: { id: commentId },
       } = req
     const comment = await Comment.findOne({_id:commentId})
     if(!comment) throw new NotFoundError(`No comment with id ${commentId}`)
-    if(!comment.likes.includes(userId)){
-        comment.likes.push(userId)
+    if(!comment.likes.includes(username)){
+        comment.likes.push(username)
     }
     else{
-        comment.likes = comment.likes.filter(item=>item!=userId)
+        comment.likes = comment.likes.filter(item=>item!=username)
     }
+    
     comment.save()
     res.status(StatusCodes.OK).json({likes:comment.likes.length})
 }
 
 const deleteComment = async (req,res) => {
     const {
-        user: { userId },
+        user: { username },
         params: { id: commentId },
       } = req
+   
       const comment = await Comment.findOne({_id:commentId})
       if(!comment) throw new NotFoundError(`No comment with id ${commentId}`)
       checkPermissions(req.user,comment.user)
@@ -35,9 +37,10 @@ const deleteComment = async (req,res) => {
 
 const getComment = async (req,res) => {
     const {
-        user: { userId },
+        user: { username },
         params: { id: commentId },
       } = req
+    
       const comment = await Comment.findOne({_id:commentId})
       if(!comment) throw new NotFoundError(`No comment with id ${commentId}`)
 

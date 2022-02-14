@@ -7,8 +7,7 @@ const CommentSchema = new mongoose.Schema({
         maxlength:200
     },
     user:{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:'User',
+        type:String,
         required:[true,"Please provide comment's user"]
     },
     post:{
