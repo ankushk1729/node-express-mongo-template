@@ -7,7 +7,8 @@ const UserSchema = new mongoose.Schema({
         type:String,
         required:[true,'Please provide a name'],
         minlength:3,
-        maxlength:30
+        maxlength:30,
+        unique:true
     },
     bio:{
         type:String,
