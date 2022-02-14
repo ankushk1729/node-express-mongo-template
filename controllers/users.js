@@ -6,15 +6,42 @@ const Post = require('../models/Post')
 
 const getUser = async (req,res) => {
     const {username} = req.params
-    const user = await User.findOne({username})
+    const user = await User.findOne({username}).select('-password')
 
     if(!user) throw new NotFoundError(`No user with username ${username}`)
 
     res.status(StatusCodes.OK).json({user})
 
 }
+
+const updateProfile = async(req,res) => {
+    const {
+        user: { username }
+    } = req
+    const user = await User.findOne({username})
+
+    if(!user) throw new NotFoundError(`No user with username ${username}`)
+
+    const { profilePhoto,bio } = req.body
+    
+    if(profilePhoto){
+        console.log("here")
+        user.profilePhoto = profilePhoto
+    }
+    if(bio){
+        user.bio = bio
+    }
+    await user.save()
+
+    const {_doc} = user
+    const {password,...data} = _doc
+    
+    res.status(StatusCodes.OK).json({user:data})
+
+}
+
 const getAllUsers = async (req,res) => {
-    const users = await User.find({})
+    const users = await User.find({}).select('-password')
     res.status(StatusCodes.OK).json({users})
 }
 
@@ -114,4 +141,10 @@ const getUserFollowing = async(req,res) => {
     res.status(StatusCodes.OK).json({following,count:following.length})
 }
 
-module.exports = {getUser,getAllUsers,followUnfollowUser,getUserComments,getUserPosts,getUserFollowers,getUserFollowing}
+const deleteAllUsers = async(req,res) => {
+    await User.deleteMany({})
+    res.status(StatusCodes.OK).json({msg:"Deleted all users"})
+}
+
+
+module.exports = {getUser,getAllUsers,followUnfollowUser,getUserComments,getUserPosts,getUserFollowers,getUserFollowing,updateProfile,deleteAllUsers}

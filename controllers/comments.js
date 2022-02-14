@@ -35,6 +35,11 @@ const deleteComment = async (req,res) => {
       res.status(StatusCodes.OK).json({msg:"Comment deleted"})
 }
 
+const deleteAllComments = async(req,res) => {
+    await Comment.deleteMany({})
+    res.status(StatusCodes.OK).json({msg:"Deleted all comments"})
+}
+
 const getComment = async (req,res) => {
     const {
         user: { username },
@@ -53,4 +58,5 @@ const getAllComments = async (req,res) => {
     res.status(StatusCodes.OK).json({comments})
 }
 
-module.exports = {likeDislikeComment,deleteComment,getComment,getAllComments}
+
+module.exports = {likeDislikeComment,deleteComment,getComment,getAllComments,deleteAllComments}

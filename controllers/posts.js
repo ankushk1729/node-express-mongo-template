@@ -78,6 +78,13 @@ const deletePost = async (req,res) => {
     res.status(StatusCodes.OK).json({msg:"Post deleted"})
 }
 
+const deleteAllPosts = async(req,res) => {
+
+    await Post.deleteMany({})
+    res.status(StatusCodes.OK).json({msg:"Deleted all posts"})
+
+}
+
 const getTimelinePosts = async (req,res) => {
   const sort = req.query.sort
   let sortKey = ''
@@ -99,4 +106,4 @@ const getTimelinePosts = async (req,res) => {
   res.status(StatusCodes.OK).json({posts})
 }
 
-module.exports = {getPost,createPost,likeDislikePost,commentOnPost,deletePost,getPostComments,getAllPosts,getTimelinePosts}
+module.exports = {getPost,createPost,likeDislikePost,commentOnPost,deletePost,getPostComments,getAllPosts,getTimelinePosts,deleteAllPosts}
