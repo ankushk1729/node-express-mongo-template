@@ -57,6 +57,10 @@ const followUnfollowUser = async (req,res) => {
 const getUserComments = async (req,res) =>{
 
     const {username} = req.params
+
+    const isUser = await User.exists({username})
+    if(!isUser) throw new NotFoundError(`No user with username ${username}`)
+
     const comments = await Comment.find({user:username})
 
     res.status(StatusCodes.OK).json({comments,count:comments.length})
@@ -65,9 +69,49 @@ const getUserComments = async (req,res) =>{
 const getUserPosts = async(req,res) => {
 
     const {username} = req.params
+
+    const isUser = await User.exists({username})
+    if(!isUser) throw new NotFoundError(`No user with username ${username}`)
+
     const posts  = await Post.find({createdBy:username})
 
     res.status(StatusCodes.OK).json({posts})
 }
+const getFollowUsers = async(users) => {
+    ans = []
+    for(let u of users){
+        let user = await User.findOne({username:u}).select('username profilePhoto -_id')
+        ans.push(user)
+    }
+    return ans
+}
 
-module.exports = {getUser,getAllUsers,followUnfollowUser,getUserComments,getUserPosts}
+const getUserFollowers = async(req,res) => {
+
+    const {username} = req.params
+
+    const isUser = await User.exists({username})
+    if(!isUser) throw new NotFoundError(`No user with username ${username}`)
+
+    const followersTemp = await User.findOne({username}).select('followers -_id')
+    followersName = followersTemp.followers
+    const followers = await getFollowUsers(followersName)
+    res.status(StatusCodes.OK).json({followers,count:followers.length})
+}
+
+
+const getUserFollowing = async(req,res) => {
+
+    const {username} = req.params
+
+    const isUser = await User.exists({username})
+    if(!isUser) throw new NotFoundError(`No user with username ${username}`)
+
+    const followingTemp = await User.findOne({username}).select('following -_id')
+    followingName = followingTemp.following
+    const following = await getFollowUsers(followingName)
+
+    res.status(StatusCodes.OK).json({following,count:following.length})
+}
+
+module.exports = {getUser,getAllUsers,followUnfollowUser,getUserComments,getUserPosts,getUserFollowers,getUserFollowing}

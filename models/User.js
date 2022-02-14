@@ -40,6 +40,10 @@ const UserSchema = new mongoose.Schema({
     },
     following:{
         type:Array
+    },
+    profilePhoto:{
+        type:String,
+        default:'https://res.cloudinary.com/tjwnzr4u7xadg/image/upload/v1644837973/profile-icon-png-898_pv9dot.png'
     }
 },{timestamps:true})
 
