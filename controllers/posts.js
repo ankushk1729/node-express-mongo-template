@@ -106,4 +106,47 @@ const getTimelinePosts = async (req,res) => {
   res.status(StatusCodes.OK).json({posts})
 }
 
-module.exports = {getPost,createPost,likeDislikePost,commentOnPost,deletePost,getPostComments,getAllPosts,getTimelinePosts,deleteAllPosts}
+const saveUnsavePost = async(req,res) => {
+  const {
+    user: { username },
+    params: { id: postId },
+  } = req
+
+  const isPost = await Post.exists({id:postId})
+  const user = await User.findOne({username})
+
+  if(!user) throw new NotFoundError(`No user with username ${username}`)
+  if(!isPost) throw new NotFoundError(`No post with id ${postId}`)
+
+  let msg = ""
+
+  if(!user.savedPosts.includes(postId)){
+    user.savedPosts.push(postId)
+    msg = "Saved post"
+  }
+  else {
+    user.savedPosts = user.savedPosts.filter(item=>item!=postId)
+    msg = "Removed saved post"
+  }
+  await user.save()
+
+  res.status(StatusCodes.OK).json({msg})
+
+
+}
+
+const getSavedPosts = async(req,res) => {
+  const {username} = req.user
+
+  const user = await User.findOne({username})
+
+  if(!user) throw new NotFoundError(`No user with username ${username}`)
+
+  const savedPosts = user.savedPosts
+
+  res.status(StatusCodes.OK).json({savedPosts,count:savedPosts.length})
+
+
+}
+
+module.exports = {getPost,createPost,likeDislikePost,commentOnPost,deletePost,getPostComments,getAllPosts,getTimelinePosts,deleteAllPosts,saveUnsavePost,getSavedPosts}
