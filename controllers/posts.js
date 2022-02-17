@@ -84,19 +84,21 @@ const deleteAllPosts = async(req,res) => {
     res.status(StatusCodes.OK).json({msg:"Deleted all posts"})
 
 }
-
+// Pending
 const getTimelinePosts = async (req,res) => {
+  const {username} = req.user
   const sort = req.query.sort
-  let sortKey = ''
-  if(sort === 'top') sortKey = '+likes'
-  if(sort === 'recent') sortKey = '-createdAt'
+
   let posts = []
+
+  if(sort === 'top') posts = await Post.aggregate([{$addFields:{count:{$size:"$likes"}}},{$sort:{count:-1}}])
+  if(sort === 'recent') posts = await Post.find({}).sort("-createdAt")
   if(sort === 'following'){
-    const result = await User.findOne({_id:req.user.username}).select('following')
+    const result = await User.findOne({username}).select('following')
     let following = result.following
     posts = await Post.find({createdBy:following}).sort('-createdAt')
   }
-  else posts = await Post.find({}).sort(sortKey)
+  // else posts = await Post.aggregate([{$sortByCount:"$likes"}])
 
 
   // These are old comments (not of changing id to username)

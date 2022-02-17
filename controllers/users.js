@@ -40,6 +40,27 @@ const updateProfile = async(req,res) => {
 
 }
 
+const getTimelineUsers = async(req,res) => {
+    const { count,sort } = req.query
+    let users = []
+    console.log(count,sort)
+    if(!count && !sort){
+         users = await User.find({}).select('-password')
+    }
+    else if(count && sort){
+        users = await User.aggregate([{$addFields:{count:{$size:"$followers"}}},{$sort:{count:-1}}]).limit(+count)
+
+    }
+    else if(count && !sort){
+        users = await User.find({}).limit(+count)
+    }
+    else {
+        users = await User.aggregate([{$addFields:{count:{$size:"$followers"}}},{$sort:{count:-1}}]).select('-password')
+    }
+
+    res.status(StatusCodes.OK).json({users})
+}
+
 const getAllUsers = async (req,res) => {
     const users = await User.find({}).select('-password')
     res.status(StatusCodes.OK).json({users})
