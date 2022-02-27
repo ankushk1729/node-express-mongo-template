@@ -5,6 +5,8 @@ const { StatusCodes } = require('http-status-codes')
 
 
 const upload = async(req,res) => {
+    const { dest } = req.query
+    if(!dest) throw new BadRequestError('No destination provided for image upload')
     const maxSize = 1024*1024
     if(!req.files) throw new BadRequestError('File not found')
     const postImage = req.files.image
@@ -17,7 +19,7 @@ const upload = async(req,res) => {
     const result = await cloudinary.uploader.upload(postImage.tempFilePath,
         {
             use_filename:true,
-            folder:'post-images'
+            folder:dest
         })
     res.status(StatusCodes.OK).json({image:{src:result.secure_url}})    
     fs.unlinkSync(postImage.tempFilePath)

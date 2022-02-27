@@ -12,6 +12,8 @@ const UserRouter = require('./routes/users')
 const CommentRouter = require('./routes/comments')
 const cloudinary = require('cloudinary').v2
 const fileUpload = require('express-fileupload')
+const upload = require('./controllers/upload')
+
 
 cloudinary.config({
     cloud_name:process.env.CLOUD_NAME,
@@ -30,6 +32,7 @@ app.use('/api/auth',AuthRouter)
 app.use('/api/posts',AuthMiddleware,PostRouter)
 app.use('/api/users',UserRouter)
 app.use('/api/comments',AuthMiddleware,CommentRouter)
+app.use('/api/upload',AuthMiddleware,upload)
 
 app.use(NotFoundMiddleware)
 app.use(ErrorHandlerMiddleware)

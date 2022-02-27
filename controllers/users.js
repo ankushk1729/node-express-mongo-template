@@ -41,23 +41,14 @@ const updateProfile = async(req,res) => {
 }
 
 const getTimelineUsers = async(req,res) => {
-    const { count,sort } = req.query
+    const { count } = req.query
     let users = []
-    console.log(count,sort)
-    if(!count && !sort){
-         users = await User.find({}).select('-password')
-    }
-    else if(count && sort){
-        users = await User.aggregate([{$addFields:{count:{$size:"$followers"}}},{$sort:{count:-1}}]).limit(+count)
-
-    }
-    else if(count && !sort){
-        users = await User.find({}).limit(+count)
+    if(!count){
+        users = await User.find({}).sort('-followersCount').select('username profilePhoto followersCount -_id')
     }
     else {
-        users = await User.aggregate([{$addFields:{count:{$size:"$followers"}}},{$sort:{count:-1}}]).select('-password')
+        users = await User.find({}).sort('-followersCount').select('username profilePhoto followersCount -_id').limit(+count)
     }
-
     res.status(StatusCodes.OK).json({users})
 }
 
@@ -83,18 +74,24 @@ const followUnfollowUser = async (req,res) => {
     
     if(!currentUser.following.includes(otherUsername)){
         currentUser.following.push(otherUsername)
+        currentUser.followingCount = currentUser.followingCount + 1
         msg = "Followed"
     }
     else{
         currentUser.following = currentUser.following.filter(item=>item!=otherUsername)
+        currentUser.followingCount = currentUser.followingCount - 1
         msg = "Unfollowed"
     }
     currentUser.save()
     
-    if(!otherUser.followers.includes(username))
+    if(!otherUser.followers.includes(username)){
         otherUser.followers.push(username)
-    else
+        otherUser.followersCount = otherUser.followersCount + 1
+    }
+    else{
         otherUser.followers = otherUser.followers.filter(item=>item!=username)
+        currentUser.followersCount = currentUser.followersCount - 1
+    }
     otherUser.save()
 
     res.status(StatusCodes.OK).json({msg})
@@ -167,5 +164,16 @@ const deleteAllUsers = async(req,res) => {
     res.status(StatusCodes.OK).json({msg:"Deleted all users"})
 }
 
+const checkUsername = async(req,res) => {
+    const {username} = req.query
+    const user = await User.findOne({username})
+    if(!user){
+        res.status(StatusCodes.OK).json({available:true})
+        return
+    }
+    res.status(StatusCodes.OK).json({available:false})
+}
 
-module.exports = {getUser,getAllUsers,followUnfollowUser,getUserComments,getUserPosts,getUserFollowers,getUserFollowing,updateProfile,deleteAllUsers}
+
+
+module.exports = {getUser,getAllUsers,followUnfollowUser,getUserComments,getUserPosts,getUserFollowers,getUserFollowing,updateProfile,deleteAllUsers,checkUsername,getTimelineUsers}
