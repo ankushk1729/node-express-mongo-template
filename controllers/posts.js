@@ -4,6 +4,7 @@ const Comment = require('../models/Comment')
 const User = require('../models/User')
 const {NotFoundError, BadRequestError} = require('../errors')
 const checkPermissions = require('../utils/checkPermissions')
+const mongoose = require('mongoose')
 
 const getAllPosts = async (req,res) => {
   const {search} = req.query
@@ -23,7 +24,6 @@ const getPost = async(req,res) => {
     res.status(StatusCodes.OK).json({post})
 }
 const createPost = async(req,res) => {
-    console.log(req.user.username)
     req.body.createdBy = req.user.username
 
     const post = await Post.create(req.body)
@@ -49,7 +49,7 @@ const likeDislikePost = async(req,res) => {
 
 const getPostComments = async (req,res) =>{
     const {id:postId} = req.params
-    const comments = await Comment.find({post:postId})
+    const comments = await Comment.find({post:postId}).sort('-createdAt').populate({path:'user_',model:'User',select:['profilePhoto']})
     res.status(StatusCodes.OK).json({comments,count:comments.length})
 }
 const commentOnPost = async(req,res) => {
@@ -61,8 +61,9 @@ const commentOnPost = async(req,res) => {
     const isPostValid = await Post.exists({_id:postId})
     if(!isPostValid) throw new NotFoundError(`No post with id ${postId}`)
     const comment = await Comment.create({user:username,post:postId,text})
-
-    res.status(StatusCodes.CREATED).json({msg:"Comment added"})
+    const user = await User.findOne({username}).select('profilePhoto')
+    comment.user_ = user
+    res.status(StatusCodes.CREATED).json({msg:"Comment added",comment})
 }
 const deletePost = async (req,res) => {
     const {
@@ -88,12 +89,12 @@ const deleteAllPosts = async(req,res) => {
 const getTimelinePosts = async (req,res) => {
   const {username} = req.user
   const sort = req.query.sort
-
+  const user = await User.findOne({username}).select('+username +profilePhoto')
   let posts = []
 
   if(sort === 'top') posts = await Post.aggregate([{$addFields:{count:{$size:"$likes"}}},{$sort:{count:-1}}])
-  if(sort === 'recent') posts = await Post.find({}).sort("-createdAt")
-  if(sort === 'following'){
+  else if(sort === 'recent') posts = await Post.find({}).sort("-createdAt")
+  else if(sort === 'following'){
     const result = await User.findOne({username}).select('following')
     let following = result.following
     posts = await Post.find({createdBy:following}).sort('-createdAt')
@@ -105,6 +106,10 @@ const getTimelinePosts = async (req,res) => {
   // const allPosts = await Post.find({createdBy:{$nin:following}}).limit(10).sort('-createdAt')
   // const timelinePosts = [...followingPosts,...allPosts]
   // if(timelinePosts.length === 0) throw new NotFoundError('No posts')
+  else {
+    posts = await Post.find({}).populate({path:'user',model:'User',select:['profilePhoto']})
+    posts = posts.filter(post=>post.createdBy !== username)
+  }
   res.status(StatusCodes.OK).json({posts})
 }
 
@@ -137,16 +142,26 @@ const saveUnsavePost = async(req,res) => {
 
 }
 
+const getSaved = async(posts) => {
+  ans = []
+  for(let p of posts){
+      let post = await Post.findById(p).populate({path:'user',model:'User',select:['profilePhoto']})
+      ans.push(post)
+  }
+  return ans
+}
+
 const getSavedPosts = async(req,res) => {
   const {username} = req.user
 
   const user = await User.findOne({username})
 
   if(!user) throw new NotFoundError(`No user with username ${username}`)
-
+  
   const savedPosts = user.savedPosts
-
-  res.status(StatusCodes.OK).json({savedPosts,count:savedPosts.length})
+  const posts = await getSaved(savedPosts)
+  
+  res.status(StatusCodes.OK).json({posts,count:savedPosts.length})
 
 
 }

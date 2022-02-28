@@ -18,7 +18,15 @@ const CommentSchema = new mongoose.Schema({
     likes:{
         type:Array
     }
-},{timestamps:true})
+},{timestamps:true,toJSON:{virtuals:true},toObject:{virtuals:true}})
+
+
+CommentSchema.virtual('user_',{
+    ref:'User',
+    localField:'user',
+    foreignField:'username',
+    justOne:false
+})
 
 CommentSchema.statics.calculateNumOfComments = async function(postId){
     const result = await this.aggregate([

@@ -21,8 +21,14 @@ const PostSchema = new mongoose.Schema({
         type:Number,
         default:0
     }
-},{timestamps:true})
+},{timestamps:true,toJSON:{virtuals:true},toObject:{virtuals:true}})
 
+PostSchema.virtual('user',{
+    ref:'User',
+    localField:'createdBy',
+    foreignField:'username',
+    justOne:false
+})
 PostSchema.pre('remove', async function(){
     await this.model('Comment').deleteMany({post:this._id})
 

@@ -32,7 +32,7 @@ app.use('/api/auth',AuthRouter)
 app.use('/api/posts',AuthMiddleware,PostRouter)
 app.use('/api/users',UserRouter)
 app.use('/api/comments',AuthMiddleware,CommentRouter)
-app.use('/api/upload',AuthMiddleware,upload)
+app.post('/api/upload',AuthMiddleware,upload)
 
 app.use(NotFoundMiddleware)
 app.use(ErrorHandlerMiddleware)

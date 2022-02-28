@@ -25,7 +25,6 @@ const updateProfile = async(req,res) => {
     const { profilePhoto,bio } = req.body
     
     if(profilePhoto){
-        console.log("here")
         user.profilePhoto = profilePhoto
     }
     if(bio){
@@ -41,13 +40,17 @@ const updateProfile = async(req,res) => {
 }
 
 const getTimelineUsers = async(req,res) => {
+    const { user : {username} } = req
     const { count } = req.query
     let users = []
     if(!count){
-        users = await User.find({}).sort('-followersCount').select('username profilePhoto followersCount -_id')
+        users = await User.find({}).sort('-followersCount').select('username profilePhoto followers following followersCount -_id')
+        users = users.filter(u=>!(u.followers.includes(username) || u.username === username))
     }
     else {
-        users = await User.find({}).sort('-followersCount').select('username profilePhoto followersCount -_id').limit(+count)
+        users = await User.find({}).sort('-followersCount').select('username profilePhoto followers following followersCount -_id').limit(+count)
+        users = users.filter(u=>!u.followers.includes(username) || !u.username === username)
+
     }
     res.status(StatusCodes.OK).json({users})
 }
@@ -90,7 +93,7 @@ const followUnfollowUser = async (req,res) => {
     }
     else{
         otherUser.followers = otherUser.followers.filter(item=>item!=username)
-        currentUser.followersCount = currentUser.followersCount - 1
+        otherUser.followersCount = otherUser.followersCount - 1
     }
     otherUser.save()
 
@@ -174,6 +177,14 @@ const checkUsername = async(req,res) => {
     res.status(StatusCodes.OK).json({available:false})
 }
 
+const getCurrentUser = async (req,res) => {
+    const {user:{username}} = req
+    const user = await User.findOne({username}).select('-password')
+
+    if(!user) throw new NotFoundError(`No user with username ${username}`)
+
+    res.status(StatusCodes.OK).json({user})
+}
 
 
-module.exports = {getUser,getAllUsers,followUnfollowUser,getUserComments,getUserPosts,getUserFollowers,getUserFollowing,updateProfile,deleteAllUsers,checkUsername,getTimelineUsers}
+module.exports = {getUser,getAllUsers,followUnfollowUser,getUserComments,getUserPosts,getUserFollowers,getUserFollowing,updateProfile,deleteAllUsers,checkUsername,getTimelineUsers,getCurrentUser}
