@@ -49,7 +49,7 @@ const getTimelineUsers = async(req,res) => {
     }
     else {
         users = await User.find({}).sort('-followersCount').select('username profilePhoto followers following followersCount -_id').limit(+count)
-        users = users.filter(u=>!u.followers.includes(username) || !u.username === username)
+        users = users.filter(u=>!(u.followers.includes(username) || u.username === username))
 
     }
     res.status(StatusCodes.OK).json({users})
