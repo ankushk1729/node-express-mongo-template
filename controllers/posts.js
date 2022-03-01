@@ -85,32 +85,48 @@ const deleteAllPosts = async(req,res) => {
     res.status(StatusCodes.OK).json({msg:"Deleted all posts"})
 
 }
-// Pending
+
+const addUsersToPosts = async(posts) => {
+  for(let post of posts){
+    const user = await User.findOne({username:post.createdBy}).select('profilePhoto username')
+    post.user = []
+    post.user.push(user)
+  }
+  return posts
+}
+
 const getTimelinePosts = async (req,res) => {
   const {username} = req.user
-  const sort = req.query.sort
+  const {sort,page} = req.query
+  let pageNum = page ? page : 0
   const user = await User.findOne({username}).select('+username +profilePhoto')
   let posts = []
 
-  if(sort === 'top') posts = await Post.aggregate([{$addFields:{count:{$size:"$likes"}}},{$sort:{count:-1}}])
-  else if(sort === 'recent') posts = await Post.find({}).sort("-createdAt")
-  else if(sort === 'following'){
-    const result = await User.findOne({username}).select('following')
-    let following = result.following
-    posts = await Post.find({createdBy:following}).sort('-createdAt')
+  if(sort === 'top') {
+    postsData = await Post.aggregate( [
+    { "$project": {
+        "body":1,
+        "image":1,
+        "createdBy":1,
+        "likes":1,
+        "numOfComments":1,
+        "length": { "$size": "$likes" }
+    }},
+    { "$sort": { "length": -1 } }
+]).skip(+pageNum*2)
+    posts = await addUsersToPosts(postsData)
   }
-  // else posts = await Post.aggregate([{$sortByCount:"$likes"}])
-
-
-  // These are old comments (not of changing id to username)
-  // const allPosts = await Post.find({createdBy:{$nin:following}}).limit(10).sort('-createdAt')
-  // const timelinePosts = [...followingPosts,...allPosts]
-  // if(timelinePosts.length === 0) throw new NotFoundError('No posts')
+  else if(sort === 'recent') posts = await Post.find({}).sort("-createdAt").populate({path:'user',model:'User',select:['profilePhoto']}).skip(+pageNum*2)
+  else if(sort === 'following'){
+    const result = await User.findOne({username}).select('following').skip(+pageNum*2)
+    let following = result.following
+    posts = await Post.find({createdBy:following}).sort('-createdAt').populate({path:'user',model:'User',select:['profilePhoto']}).skip(+pageNum*2)
+  }
   else {
-    posts = await Post.find({}).populate({path:'user',model:'User',select:['profilePhoto']})
+    posts = await Post.find({}).populate({path:'user',model:'User',select:['profilePhoto']}).skip(+pageNum*2)
     posts = posts.filter(post=>post.createdBy !== username)
   }
-  res.status(StatusCodes.OK).json({posts})
+  res.status(StatusCodes.OK).json({posts,count:posts.length})
 }
 
 const saveUnsavePost = async(req,res) => {
@@ -154,14 +170,16 @@ const getSaved = async(posts) => {
 const getSavedPosts = async(req,res) => {
   const {username} = req.user
 
+  const {page} = req.query
+
   const user = await User.findOne({username})
 
   if(!user) throw new NotFoundError(`No user with username ${username}`)
   
   const savedPosts = user.savedPosts
-  const posts = await getSaved(savedPosts)
-  
-  res.status(StatusCodes.OK).json({posts,count:savedPosts.length})
+  let posts = await getSaved(savedPosts)
+  posts.splice(0,page*2)
+  res.status(StatusCodes.OK).json({posts,count:posts.length})
 
 
 }
