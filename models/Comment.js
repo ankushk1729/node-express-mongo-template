@@ -4,7 +4,7 @@ const CommentSchema = new mongoose.Schema({
     text:{
         type:String,
         required:[true,'Please provide comment text'],
-        maxlength:200
+        maxlength:300
     },
     user:{
         type:String,

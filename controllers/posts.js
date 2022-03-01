@@ -49,7 +49,9 @@ const likeDislikePost = async(req,res) => {
 
 const getPostComments = async (req,res) =>{
     const {id:postId} = req.params
-    const comments = await Comment.find({post:postId}).sort('-createdAt').populate({path:'user_',model:'User',select:['profilePhoto']})
+    const { page } = req.query
+    let pageNum = page
+    const comments = await Comment.find({post:postId}).skip(pageNum*5).limit(5).sort('-createdAt').populate({path:'user_',model:'User',select:['profilePhoto']})
     res.status(StatusCodes.OK).json({comments,count:comments.length})
 }
 const commentOnPost = async(req,res) => {
