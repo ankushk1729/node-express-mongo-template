@@ -47,7 +47,7 @@ const getTimelineUsers = async(req,res) => {
         users = await User.find({}).sort('-followersCount').select('username profilePhoto followers following followersCount -_id')
     }
     else {
-        users = await User.find({}).sort('-followersCount').limit(+count+1).select('username profilePhoto followers following followersCount -_id')        
+        users = await User.find({}).sort('-followersCount').limit(+count).select('username profilePhoto followers following followersCount -_id')        
     }
     users = users.filter(u=>!(u.followers.includes(username) || u.username === username))
     res.status(StatusCodes.OK).json({users})

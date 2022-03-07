@@ -52,7 +52,8 @@ const getPostComments = async (req,res) =>{
     const { page } = req.query
     let pageNum = page
     const comments = await Comment.find({post:postId}).skip(pageNum*5).limit(5).sort('-createdAt').populate({path:'user_',model:'User',select:['profilePhoto']})
-    res.status(StatusCodes.OK).json({comments,count:comments.length})
+    const count = await Comment.countDocuments({post:postId})
+    res.status(StatusCodes.OK).json({comments,count:comments.length,hasMore:count-(pageNum*5)})
 }
 const commentOnPost = async(req,res) => {
     const {
@@ -115,20 +116,21 @@ const getTimelinePosts = async (req,res) => {
         "length": { "$size": "$likes" }
     }},
     { "$sort": { "length": -1 } }
-]).skip(+pageNum*2)
+]).skip(+pageNum*2).limit(2)
     posts = await addUsersToPosts(postsData)
   }
-  else if(sort === 'recent') posts = await Post.find({}).sort("-createdAt").populate({path:'user',model:'User',select:['profilePhoto']}).skip(+pageNum*2)
+  else if(sort === 'recent') posts = await Post.find({}).sort("-createdAt").populate({path:'user',model:'User',select:['profilePhoto']}).skip(+pageNum*2).limit(2)
   else if(sort === 'following'){
-    const result = await User.findOne({username}).select('following').skip(+pageNum*2)
+    const result = await User.findOne({username}).select('following')
     let following = result.following
-    posts = await Post.find({createdBy:following}).sort('-createdAt').populate({path:'user',model:'User',select:['profilePhoto']}).skip(+pageNum*2)
+    posts = await Post.find({createdBy:following}).sort('-createdAt').populate({path:'user',model:'User',select:['profilePhoto']}).skip(+pageNum*2).limit(2)
   }
   else {
-    posts = await Post.find({}).populate({path:'user',model:'User',select:['profilePhoto']}).skip(+pageNum*2)
+    posts = await Post.find({}).populate({path:'user',model:'User',select:['profilePhoto']}).skip(+pageNum*2).limit(2)
     posts = posts.filter(post=>post.createdBy !== username)
   }
-  res.status(StatusCodes.OK).json({posts,count:posts.length})
+  const count_ = await Post.count()
+  res.status(StatusCodes.OK).json({posts,count:posts.length,hasMore:(count_ - (+page*2+2))>0})
 }
 
 const saveUnsavePost = async(req,res) => {
