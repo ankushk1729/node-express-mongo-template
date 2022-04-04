@@ -182,10 +182,15 @@ const getSavedPosts = async(req,res) => {
   
   const savedPosts = user.savedPosts
   let posts = await getSaved(savedPosts)
-  posts.splice(0,page*2)
-  res.status(StatusCodes.OK).json({posts,count:posts.length})
-
-
+  let tempPosts = posts
+  let hasMore = false
+  posts.splice(0,(+page)*2)
+  if(posts.length >= 2){
+    hasMore = true
+    posts.length = 2
+  }
+  console.log(posts)
+  res.status(StatusCodes.OK).json({posts,count:posts.length,hasMore})
 }
 
 module.exports = {getPost,createPost,likeDislikePost,commentOnPost,deletePost,getPostComments,getAllPosts,getTimelinePosts,deleteAllPosts,saveUnsavePost,getSavedPosts}

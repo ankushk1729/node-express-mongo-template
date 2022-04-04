@@ -46,6 +46,10 @@ const UserSchema = new mongoose.Schema({
         type:String,
         default:'https://res.cloudinary.com/tjwnzr4u7xadg/image/upload/v1644837973/profile-icon-png-898_pv9dot.png'
     },
+    coverPhoto:{
+        type:String,
+        default:'https://res.cloudinary.com/tjwnzr4u7xadg/image/upload/v1647343223/profile-bg2_vzoyai.jpg'
+    },
     savedPosts:{
         type:Array
     },

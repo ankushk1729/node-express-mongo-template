@@ -126,7 +126,7 @@ const getUserPosts = async(req,res) => {
 const getFollowUsers = async(users) => {
     ans = []
     for(let u of users){
-        let user = await User.findOne({username:u}).select('username profilePhoto -_id')
+        let user = await User.findOne({username:u}).select('username profilePhoto -_id followersCount')
         ans.push(user)
     }
     return ans
@@ -141,7 +141,13 @@ const getUserFollowers = async(req,res) => {
 
     const followersTemp = await User.findOne({username}).select('followers -_id')
     followersName = followersTemp.followers
-    const followers = await getFollowUsers(followersName)
+    const result = await getFollowUsers(followersName)
+    result.sort(function(a,b){
+        return b.followersCount - a.followersCount
+    })
+    console.log(result)
+    const followers = result.splice(0,6)
+    
     res.status(StatusCodes.OK).json({followers,count:followers.length})
 }
 
