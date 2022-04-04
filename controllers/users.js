@@ -22,13 +22,16 @@ const updateProfile = async(req,res) => {
 
     if(!user) throw new NotFoundError(`No user with username ${username}`)
 
-    const { profilePhoto,bio } = req.body
+    const { profilePhoto,bio,coverPhoto } = req.body
     
     if(profilePhoto){
         user.profilePhoto = profilePhoto
     }
     if(bio){
         user.bio = bio
+    }
+    if(coverPhoto){
+        user.coverPhoto = coverPhoto
     }
     await user.save()
 
