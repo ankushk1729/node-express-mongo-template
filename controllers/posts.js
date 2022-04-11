@@ -107,6 +107,7 @@ const getTimelinePosts = async (req,res) => {
 
   if(sort === 'top') {
     postsData = await Post.aggregate( [
+      {$match:{createdBy:{$nin:[username]}}},
     { "$project": {
         "body":1,
         "image":1,
@@ -118,16 +119,18 @@ const getTimelinePosts = async (req,res) => {
     { "$sort": { "length": -1 } }
 ]).skip(+pageNum*2).limit(2)
     posts = await addUsersToPosts(postsData)
+    
   }
-  else if(sort === 'recent') posts = await Post.find({}).sort("-createdAt").populate({path:'user',model:'User',select:['profilePhoto']}).skip(+pageNum*2).limit(2)
+  else if(sort === 'recent') {
+     posts = await Post.find({"createdBy":{$ne:username}}).sort("-createdAt").populate({path:'user',model:'User',select:['profilePhoto']}).skip(+pageNum*2).limit(2)
+  }
   else if(sort === 'following'){
     const result = await User.findOne({username}).select('following')
     let following = result.following
     posts = await Post.find({createdBy:following}).sort('-createdAt').populate({path:'user',model:'User',select:['profilePhoto']}).skip(+pageNum*2).limit(2)
   }
   else {
-    posts = await Post.find({}).populate({path:'user',model:'User',select:['profilePhoto']}).skip(+pageNum*2).limit(2)
-    posts = posts.filter(post=>post.createdBy !== username)
+    posts = await Post.find({"createdBy":{$ne:username}}).populate({path:'user',model:'User',select:['profilePhoto']}).skip(+pageNum*2).limit(2)
   }
   const count_ = await Post.count()
   res.status(StatusCodes.OK).json({posts,count:posts.length,hasMore:(count_ - (+page*2+2))>0})
