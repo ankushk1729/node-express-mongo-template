@@ -138,17 +138,18 @@ const getFollowUsers = async(users) => {
 const getUserFollowers = async(req,res) => {
 
     const {username} = req.params
+    const { user } = req
 
     const isUser = await User.exists({username})
     if(!isUser) throw new NotFoundError(`No user with username ${username}`)
 
     const followersTemp = await User.findOne({username}).select('followers -_id')
     followersName = followersTemp.followers
-    const result = await getFollowUsers(followersName)
+    let result = await getFollowUsers(followersName)
     result.sort(function(a,b){
         return b.followersCount - a.followersCount
     })
-    console.log(result)
+    result = result.filter(u=>u.username !== user.username)
     const followers = result.splice(0,6)
     
     res.status(StatusCodes.OK).json({followers,count:followers.length})
