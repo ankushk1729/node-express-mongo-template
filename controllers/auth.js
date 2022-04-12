@@ -1,6 +1,8 @@
+const jwt = require("jsonwebtoken")
 const {StatusCodes} = require('http-status-codes')
 const { BadRequestError, UnauthenticatedError } = require('../errors')
 const User = require('../models/User')
+
 
 const register = async(req,res)=> {
     const user = await User.create({...req.body,role:'user'})
@@ -19,4 +21,15 @@ const login = async(req,res) => {
 }
 
 
-module.exports = {login,register}
+const verifyToken = async (req,res) => {
+    const token = req.body.token
+    try {
+        const payload = jwt.verify(token,process.env.JWT_SECRET)    
+        req.user = {username:payload.username,email:payload.email,role:payload.role}
+        return res.status(200).json({verified:true})
+    } catch (error) {
+        return res.status(200).json({verified:false})
+    }
+}
+
+module.exports = {login,register,verifyToken}
