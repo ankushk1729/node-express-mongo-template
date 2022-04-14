@@ -122,7 +122,7 @@ const getUserPosts = async(req,res) => {
     const isUser = await User.exists({username})
     if(!isUser) throw new NotFoundError(`No user with username ${username}`)
 
-    const posts  = await Post.find({createdBy:username})
+    const posts  = await Post.find({createdBy:username}).populate({path:'user',model:'User',select:['profilePhoto']})
 
     res.status(StatusCodes.OK).json({posts})
 }
