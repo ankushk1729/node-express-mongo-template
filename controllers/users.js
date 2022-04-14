@@ -119,12 +119,17 @@ const getUserPosts = async(req,res) => {
 
     const {username} = req.params
 
+    const { page } = req.query
+
+    let pageNum = page ? page : 0
+
     const isUser = await User.exists({username})
     if(!isUser) throw new NotFoundError(`No user with username ${username}`)
 
-    const posts  = await Post.find({createdBy:username}).populate({path:'user',model:'User',select:['profilePhoto']})
+    const userPostsCount = await Post.find({createdBy:username}).count()
+    const posts  = await Post.find({createdBy:username}).populate({path:'user',model:'User',select:['profilePhoto']}).skip(+pageNum*2).limit(2)
 
-    res.status(StatusCodes.OK).json({posts})
+    res.status(StatusCodes.OK).json({posts,count:posts.length,hasMore:(userPostsCount - (+page*2+2))>0})
 }
 const getFollowUsers = async(users) => {
     ans = []
