@@ -100,6 +100,8 @@ const addUsersToPosts = async(posts) => {
   return posts
 }
 
+
+// Pending -> Repeating posts for top sort
 const getTimelinePosts = async (req,res) => {
   const {username} = req.user
   const {sort,page} = req.query
@@ -119,8 +121,13 @@ const getTimelinePosts = async (req,res) => {
         "numOfComments":1,
         "length": { "$size": "$likes" }
     }},
-    { "$sort": { "length": -1 } }
-]).skip(+pageNum*2).limit(2)
+    { "$sort": { "length": -1,"_id":1 } },
+    {
+      "$skip":+pageNum*2
+    },{
+      "$limit":2
+    }
+])
   
   postCountTemp = await Post.aggregate( [
         {$match:{createdBy:{$nin:[username]}}},{
@@ -144,6 +151,7 @@ const getTimelinePosts = async (req,res) => {
      postCount = await Post.find({"createdBy":{$ne:username}})
     posts = await Post.find({"createdBy":{$ne:username}}).populate({path:'user',model:'User',select:['profilePhoto']}).skip(+pageNum*2).limit(2)
   }
+  console.log(posts)
   const count_ = await Post.count()
   res.status(StatusCodes.OK).json({posts,count:posts.length,hasMore:(postCount - (+page*2+2))>0})
 }
