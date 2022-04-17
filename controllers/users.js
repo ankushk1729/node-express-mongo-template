@@ -115,6 +115,7 @@ const getUserComments = async (req,res) =>{
     res.status(StatusCodes.OK).json({comments,count:comments.length})
 }
 
+
 const getUserPosts = async(req,res) => {
 
     const {username} = req.params
@@ -127,7 +128,9 @@ const getUserPosts = async(req,res) => {
     if(!isUser) throw new NotFoundError(`No user with username ${username}`)
 
     const userPostsCount = await Post.find({createdBy:username}).count()
-    const posts  = await Post.find({createdBy:username}).populate({path:'user',model:'User',select:['profilePhoto']}).skip(+pageNum*2).limit(2)
+
+
+    const posts  = await Post.find({createdBy:username}).sort('-createdAt').populate({path:'user',model:'User',select:['profilePhoto']}).skip(+pageNum*2).limit(2)
 
     res.status(StatusCodes.OK).json({posts,count:posts.length,hasMore:(userPostsCount - (+page*2+2))>0})
 }
