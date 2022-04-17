@@ -141,7 +141,7 @@ const getTimelinePosts = async (req,res) => {
     posts = await Post.find({createdBy:following}).sort('-createdAt').populate({path:'user',model:'User',select:['profilePhoto']}).skip(+pageNum*2).limit(2)
   }
   else {
-    postCount = await Post.find({"createdBy":{$ne:username}})
+     postCount = await Post.find({"createdBy":{$ne:username}})
     posts = await Post.find({"createdBy":{$ne:username}}).populate({path:'user',model:'User',select:['profilePhoto']}).skip(+pageNum*2).limit(2)
   }
   const count_ = await Post.count()
