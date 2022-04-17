@@ -20,7 +20,9 @@ const getPost = async(req,res) => {
     const {
         params: { id: postId },
       } = req;
-    const post = await Post.findOne({_id:postId})
+
+    const post = await Post.findOne({_id:postId}).populate({path:'user',model:'User',select:['profilePhoto']})
+    if(!post) throw new NotFoundError(`No post with id ${postId}`)
     res.status(StatusCodes.OK).json({post})
 }
 const createPost = async(req,res) => {
@@ -104,7 +106,8 @@ const getTimelinePosts = async (req,res) => {
   let pageNum = page ? page : 0
   const user = await User.findOne({username}).select('+username +profilePhoto')
   let posts = []
-
+  let postCount = 0
+  let postCountTemp
   if(sort === 'top') {
     postsData = await Post.aggregate( [
       {$match:{createdBy:{$nin:[username]}}},
@@ -118,22 +121,31 @@ const getTimelinePosts = async (req,res) => {
     }},
     { "$sort": { "length": -1 } }
 ]).skip(+pageNum*2).limit(2)
+  
+  postCountTemp = await Post.aggregate( [
+        {$match:{createdBy:{$nin:[username]}}},{
+          $count:'count'
+        }
+  ])
+    postCount = postCountTemp[0].count
     posts = await addUsersToPosts(postsData)
-    
   }
   else if(sort === 'recent') {
+      postCount = await Post.find({"createdBy":{$ne:username}}).count()
      posts = await Post.find({"createdBy":{$ne:username}}).sort("-createdAt").populate({path:'user',model:'User',select:['profilePhoto']}).skip(+pageNum*2).limit(2)
   }
   else if(sort === 'following'){
     const result = await User.findOne({username}).select('following')
     let following = result.following
+    postCount = await Post.find({createdBy:following}).count()
     posts = await Post.find({createdBy:following}).sort('-createdAt').populate({path:'user',model:'User',select:['profilePhoto']}).skip(+pageNum*2).limit(2)
   }
   else {
+    postCount = await Post.find({"createdBy":{$ne:username}})
     posts = await Post.find({"createdBy":{$ne:username}}).populate({path:'user',model:'User',select:['profilePhoto']}).skip(+pageNum*2).limit(2)
   }
   const count_ = await Post.count()
-  res.status(StatusCodes.OK).json({posts,count:posts.length,hasMore:(count_ - (+page*2+2))>0})
+  res.status(StatusCodes.OK).json({posts,count:posts.length,hasMore:(postCount - (+page*2+2))>0})
 }
 
 const saveUnsavePost = async(req,res) => {
@@ -196,4 +208,4 @@ const getSavedPosts = async(req,res) => {
   res.status(StatusCodes.OK).json({posts,count:posts.length,hasMore})
 }
 
-module.exports = {getPost,createPost,likeDislikePost,commentOnPost,deletePost,getPostComments,getAllPosts,getTimelinePosts,deleteAllPosts,saveUnsavePost,getSavedPosts}
+module.exports = {getPost,createPost,likeDislikePost,commentOnPost,deletePost,getPostComments,getAllPosts,getTimelinePosts,deleteAllPosts,saveUnsavePost,getSavedPosts,addUsersToPosts}
