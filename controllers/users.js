@@ -148,6 +148,10 @@ const getUserFollowers = async(req,res) => {
     const {username} = req.params
     const { user } = req
 
+    const { page } = req.query
+
+    let pageNum = page ? page : 0
+
     const isUser = await User.exists({username})
     if(!isUser) throw new NotFoundError(`No user with username ${username}`)
 
@@ -157,10 +161,10 @@ const getUserFollowers = async(req,res) => {
     result.sort(function(a,b){
         return b.followersCount - a.followersCount
     })
-    result = result.filter(u=>u.username !== user.username)
-    const followers = result.splice(0,6)
-    
-    res.status(StatusCodes.OK).json({followers,count:followers.length})
+
+    let followers = result.slice(+pageNum*10,+pageNum*10 + 10)
+    const count = result.length
+    res.status(StatusCodes.OK).json({followers,count:followers.length,hasMore:count - (+pageNum*10 + 10) > 0})
 }
 
 
