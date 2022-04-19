@@ -152,6 +152,8 @@ const getUserFollowers = async(req,res) => {
 
     let pageNum = page ? page : 0
 
+    const limit = 10
+
     const isUser = await User.exists({username})
     if(!isUser) throw new NotFoundError(`No user with username ${username}`)
 
@@ -162,9 +164,10 @@ const getUserFollowers = async(req,res) => {
         return b.followersCount - a.followersCount
     })
 
-    let followers = result.slice(+pageNum*10,+pageNum*10 + 10)
+
+    let followers = result.slice(+pageNum*limit,+pageNum*limit + limit)
     const count = result.length
-    res.status(StatusCodes.OK).json({followers,count:followers.length,hasMore:count - (+pageNum*10 + 10) > 0})
+    res.status(StatusCodes.OK).json({followers,count:followers.length,hasMore:count - (+pageNum*limit + limit) > 0})
 }
 
 
