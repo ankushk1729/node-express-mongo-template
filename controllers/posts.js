@@ -6,6 +6,7 @@ const {NotFoundError, BadRequestError} = require('../errors')
 const checkPermissions = require('../utils/checkPermissions')
 const mongoose = require('mongoose')
 
+
 const getAllPosts = async (req,res) => {
   const {search} = req.query
   let posts
@@ -101,7 +102,6 @@ const addUsersToPosts = async(posts) => {
 }
 
 
-// Pending -> Repeating posts for top sort
 const getTimelinePosts = async (req,res) => {
   const {username} = req.user
   const {sort,page} = req.query
@@ -216,4 +216,22 @@ const getSavedPosts = async(req,res) => {
   res.status(StatusCodes.OK).json({posts,count:posts.length,hasMore})
 }
 
-module.exports = {getPost,createPost,likeDislikePost,commentOnPost,deletePost,getPostComments,getAllPosts,getTimelinePosts,deleteAllPosts,saveUnsavePost,getSavedPosts,addUsersToPosts}
+
+const getPostLikes = async (req,res) => {
+  const {id:postId} = req.params
+
+  const post = await Post.findById(postId)
+
+  if(!post) throw new NotFoundError(`No post with id ${postId}`)
+
+  const likes = []
+
+  for(let liker of post.likes){
+      const user = await User.findOne({username:liker}).select('profilePhoto username')
+      likes.push(user)
+  }
+
+  res.status(StatusCodes.OK).json({likes,count:likes.length})
+}
+
+module.exports = {getPost,createPost,likeDislikePost,commentOnPost,deletePost,getPostComments,getAllPosts,getTimelinePosts,deleteAllPosts,saveUnsavePost,getSavedPosts,addUsersToPosts,getPostLikes}
