@@ -7,7 +7,7 @@ const User = require('../models/User')
 const register = async(req,res)=> {
     const user = await User.create({...req.body,role:'user'})
     const token = user.createJWT()
-    res.status(StatusCodes.CREATED).json({user:{name:user.username},token})
+    res.status(StatusCodes.CREATED).json({user:{username:user.username, id: user._id},token})
 }
 const login = async(req,res) => {
     const {email,password} = req.body
@@ -17,7 +17,7 @@ const login = async(req,res) => {
     const isPasswordCorrect = await user.comparePassword(password)
     if(!isPasswordCorrect) throw new UnauthenticatedError('Invalid email or password')
     const token = user.createJWT()
-    res.status(StatusCodes.OK).json({user:{name:user.username},token})
+    res.status(StatusCodes.OK).json({user:{username:user.username, id: user._id},token})
 }
 
 

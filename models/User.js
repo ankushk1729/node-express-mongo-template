@@ -36,30 +36,13 @@ const UserSchema = new mongoose.Schema({
         enum:['user','admin'],
         default:'user'
     },
-    followers:{
-        type:Array
-    },
-    following:{
-        type:Array
-    },
     profilePhoto:{
         type:String,
-        default:'https://res.cloudinary.com/tjwnzr4u7xadg/image/upload/v1644837973/profile-icon-png-898_pv9dot.png'
+        default:''
     },
     coverPhoto:{
         type:String,
-        default:'https://res.cloudinary.com/tjwnzr4u7xadg/image/upload/v1647343223/profile-bg2_vzoyai.jpg'
-    },
-    savedPosts:{
-        type:Array
-    },
-    followersCount:{
-        type:Number,
-        default:0
-    },
-    followingCount:{
-        type:Number,
-        default:0
+        default:''
     },
 },{timestamps:true})
 
@@ -74,7 +57,7 @@ UserSchema.pre("save",async function(next){
 })
 
 UserSchema.methods.createJWT = function(){
-    return jwt.sign({username:this.username,email:this.email,role:this.role},process.env.JWT_SECRET,{expiresIn:process.env.EXPIRES_IN})
+    return jwt.sign({username:this.username,email:this.email,role:this.role, id: this._id},process.env.JWT_SECRET,{expiresIn:process.env.EXPIRES_IN})
 }
 
 UserSchema.methods.comparePassword = async function(candidatePassword){
