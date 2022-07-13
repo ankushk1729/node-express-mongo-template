@@ -1,8 +1,8 @@
-const { StatusCodes } = require("http-status-codes");
-const { BadRequestError, NotFoundError } = require("../errors");
-const User = require("../models/User");
-const Content = require("../models/Content");
-const mongoose = require("mongoose");
+import { StatusCodes } from "http-status-codes";
+import { BadRequestError, NotFoundError } from "../errors/index.js";
+import User from "../models/User.js";
+import Content from "../models/Content.js";
+import mongoose from "mongoose";
 
 const getUser = async (req, res) => {
   const { id } = req.params;
@@ -81,7 +81,7 @@ const updateUser = async (req, res) => {
   res.status(StatusCodes.OK).json({ user });
 };
 
-module.exports = {
+export {
   getUser,
   getAllUsers,
   getUserContents,

@@ -1,6 +1,6 @@
-const express = require("express");
-const router = express.Router();
-const {
+import express from "express";
+
+import {
   getAllUsers,
   getUser,
   getUserContents,
@@ -8,8 +8,10 @@ const {
   checkUsername,
   getCurrentUser,
   updateUser,
-} = require("../controllers/users.controller");
-const { auth, authorizePermissions } = require("../middlewares/authentication");
+} from "../controllers/users.controller.js";
+import { auth, authorizePermissions } from "../middlewares/authentication.js";
+
+const router = express.Router();
 
 router.route("/").get([auth, getAllUsers]).patch(auth, updateUser);
 router.route("/checkUsername").post(checkUsername);
@@ -19,4 +21,4 @@ router
   .route("/:id/contents")
   .get(auth, getUserContents);
 
-module.exports = router;
+export default router;

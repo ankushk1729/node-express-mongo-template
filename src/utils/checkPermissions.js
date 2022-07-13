@@ -1,4 +1,4 @@
-const { UnauthorizedError } = require("../errors");
+import { UnauthorizedError } from "../errors/index.js";
 
 const checkPermissions = (requestUser, resourceUser) => {
   if (
@@ -10,4 +10,4 @@ const checkPermissions = (requestUser, resourceUser) => {
   throw new UnauthorizedError("Access forbidden");
 };
 
-module.exports = checkPermissions;
+export default checkPermissions;

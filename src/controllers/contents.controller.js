@@ -1,9 +1,9 @@
-const { StatusCodes } = require("http-status-codes");
-const Content = require("../models/Content");
-const User = require("../models/User");
-const { NotFoundError, BadRequestError } = require("../errors");
-const checkPermissions = require("../utils/checkPermissions");
-const mongoose = require("mongoose");
+import { StatusCodes } from "http-status-codes";
+import Content from "../models/Content.js";
+import User from "../models/User.js";
+import { NotFoundError, BadRequestError } from "../errors/index.js";
+import checkPermissions from "../utils/checkPermissions.js";
+import mongoose from "mongoose";
 
 /* Get all contents without pagination
 
@@ -74,7 +74,7 @@ const updateContent = async (req, res) => {
   res.status(StatusCodes.OK).json({ content });
 };
 
-module.exports = {
+export {
   getContent,
   getPaginatedContents,
   deleteContent,

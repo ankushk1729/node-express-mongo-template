@@ -1,14 +1,16 @@
-const express = require("express");
-const router = express.Router();
-const {
+import express from "express";
+
+import {
   getContent,
   createContent,
   deleteContent,
   deleteAllContents,
   updateContent,
   getPaginatedContents,
-} = require("../controllers/contents.controller");
-const { authorizePermissions } = require("../middlewares/authentication");
+} from "../controllers/contents.controller.js";
+import { authorizePermissions } from "../middlewares/authentication.js";
+
+const router = express.Router();
 
 router
   .route("/")
@@ -18,4 +20,4 @@ router
 
 router.route("/:id").get(getContent).delete(deleteContent).patch(updateContent);
 
-module.exports = router;
+export default router;

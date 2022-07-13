@@ -1,7 +1,7 @@
-const jwt = require("jsonwebtoken");
-const { UnauthenticatedError } = require("../errors");
+import jwt from "jsonwebtoken";
+import { UnauthenticatedError } from "../errors/index.js";
 
-const auth = async (req, res, next) => {
+export const auth = async (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     throw new UnauthenticatedError("Authentication Invalid");
@@ -21,7 +21,7 @@ const auth = async (req, res, next) => {
   }
 };
 
-const authorizePermissions = (...roles) => {
+export const authorizePermissions = (...roles) => {
   return (req, res, next) => {
     if (!roles.includes(req.user.role))
       throw new UnauthenticatedError("Access Forbidden");
@@ -29,4 +29,4 @@ const authorizePermissions = (...roles) => {
   };
 };
 
-module.exports = { auth, authorizePermissions };
+

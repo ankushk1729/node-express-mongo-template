@@ -1,7 +1,7 @@
-const jwt = require("jsonwebtoken");
-const { StatusCodes } = require("http-status-codes");
-const { BadRequestError, UnauthenticatedError } = require("../errors");
-const User = require("../models/User");
+import jwt from "jsonwebtoken";
+import { StatusCodes } from "http-status-codes";
+import { BadRequestError, UnauthenticatedError } from "../errors/index.js";
+import User from "../models/User.js";
 
 const register = async (req, res) => {
   const user = await User.create({ ...req.body, role: "user" });
@@ -9,7 +9,8 @@ const register = async (req, res) => {
   res
     .status(StatusCodes.CREATED)
     .json({ user: { username: user.username, id: user._id }, token });
-};
+}
+
 const login = async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password)
@@ -40,4 +41,4 @@ const verifyToken = async (req, res) => {
   }
 };
 
-module.exports = { login, register, verifyToken };
+export { login, register, verifyToken }

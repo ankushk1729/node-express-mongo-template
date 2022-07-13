@@ -1,18 +1,20 @@
-require("dotenv").config();
-require("express-async-errors");
-const express = require("express");
-const connectDB = require("./db/connect");
-const cors = require("cors");
-const helmet = require("helmet");
-const xss = require("xss-clean");
-const { auth: AuthMiddleware } = require("./middlewares/authentication");
-const ErrorHandlerMiddleware = require("./middlewares/error-handler");
-const NotFoundMiddleware = require("./middlewares/not-found");
-const AuthRouter = require("./routes/auth.route");
-const ContentRouter = require("./routes/contents.route");
-const UserRouter = require("./routes/users.route");
+import { config } from 'dotenv'
+import "express-async-errors";
+import express from "express";
+import { connectDB } from "./db/connect.js";
+import cors from "cors";
+import helmet from "helmet";
+import xss from "xss-clean";
+import { auth as AuthMiddleware } from "./middlewares/authentication.js";
+import ErrorHandlerMiddleware from "./middlewares/error-handler.js";
+import NotFoundMiddleware from "./middlewares/not-found.js";
+import AuthRouter from "./routes/auth.route.js";
+import ContentRouter from "./routes/contents.route.js";
+import UserRouter from "./routes/users.route.js";
 
 const app = express();
+
+config()
 
 // Middlewares
 app.use(cors());
