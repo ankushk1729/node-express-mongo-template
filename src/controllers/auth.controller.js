@@ -3,19 +3,19 @@ import { StatusCodes } from "http-status-codes";
 import { loginUser, registerUser } from "../services/auth.service.js";
 
 const register = async (req, res) => {
-  const {user, token} = await registerUser(req)
+  const user = await registerUser(req, res)
   res
     .status(StatusCodes.CREATED)
-    .json({ user: { username: user.username, id: user._id }, token });
+    .json({ user });
 }
 
 const login = async (req, res) => {
 
-  const {user, token} = await loginUser(req)
+  const user = await loginUser(req, res)
 
   res
     .status(StatusCodes.OK)
-    .json({ user: { username: user.username, id: user._id }, token });
+    .json({ user });
 };
 
 const verifyToken = async (req, res) => {

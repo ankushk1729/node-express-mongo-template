@@ -5,6 +5,7 @@ import { connectDB } from "./db/connect.js";
 import cors from "cors";
 import helmet from "helmet";
 import xss from "xss-clean";
+import cookieParser from 'cookie-parser';
 import { auth as AuthMiddleware } from "./middlewares/auth.js";
 import ErrorHandlerMiddleware from "./middlewares/errorHandler.js";
 import NotFoundMiddleware from "./middlewares/notFound.js";
@@ -21,6 +22,7 @@ app.use(cors());
 app.use(express.json());
 app.use(xss());
 app.use(helmet());
+app.use(cookieParser(process.env.JWT_SECRET));
 
 app.use("/api/auth", AuthRouter);
 app.use("/api/contents", AuthMiddleware, ContentRouter);

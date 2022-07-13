@@ -57,19 +57,6 @@ UserSchema.pre("save", async function (next) {
   this.password = await bcrypt.hash(this.password, salt);
 });
 
-UserSchema.methods.createJWT = function () {
-  return jwt.sign(
-    {
-      username: this.username,
-      email: this.email,
-      role: this.role,
-      id: this._id,
-    },
-    process.env.JWT_SECRET,
-    { expiresIn: process.env.EXPIRES_IN }
-  );
-};
-
 UserSchema.methods.comparePassword = async function (candidatePassword) {
   const isMatch = await bcrypt.compare(candidatePassword, this.password);
   return isMatch;
