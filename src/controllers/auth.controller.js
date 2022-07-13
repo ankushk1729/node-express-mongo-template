@@ -19,4 +19,4 @@ const login = async (req, res) => {
 };
 
 
-export { login, register, verifyToken }
+export { login, register }
