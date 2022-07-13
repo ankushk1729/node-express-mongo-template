@@ -1,4 +1,4 @@
-import { UnauthorizedError } from "../errors/index.js";
+import UnauthorizedError from "../errors/Unauthorized.js";
 
 const checkPermissions = (requestUser, resourceUser) => {
   if (

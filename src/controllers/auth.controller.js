@@ -1,26 +1,18 @@
 import jwt from "jsonwebtoken";
 import { StatusCodes } from "http-status-codes";
-import { BadRequestError, UnauthenticatedError } from "../errors/index.js";
-import User from "../models/User.js";
+import { loginUser, registerUser } from "../services/auth.service.js";
 
 const register = async (req, res) => {
-  const user = await User.create({ ...req.body, role: "user" });
-  const token = user.createJWT();
+  const {user, token} = await registerUser(req)
   res
     .status(StatusCodes.CREATED)
     .json({ user: { username: user.username, id: user._id }, token });
 }
 
 const login = async (req, res) => {
-  const { email, password } = req.body;
-  if (!email || !password)
-    throw new BadRequestError("Please provide email and password");
-  const user = await User.findOne({ email });
-  if (!user) throw new UnauthenticatedError("Invalid email or password");
-  const isPasswordCorrect = await user.comparePassword(password);
-  if (!isPasswordCorrect)
-    throw new UnauthenticatedError("Invalid email or password");
-  const token = user.createJWT();
+
+  const {user, token} = await loginUser(req)
+
   res
     .status(StatusCodes.OK)
     .json({ user: { username: user.username, id: user._id }, token });

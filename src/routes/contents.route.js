@@ -8,7 +8,7 @@ import {
   updateContent,
   getPaginatedContents,
 } from "../controllers/contents.controller.js";
-import { authorizePermissions } from "../middlewares/authentication.js";
+import { authorizePermissions } from "../middlewares/auth.js";
 
 const router = express.Router();
 

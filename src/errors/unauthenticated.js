@@ -1,5 +1,5 @@
 import { StatusCodes } from "http-status-codes";
-import CustomAPIError from "./custom-error.js";
+import CustomAPIError from "./customError.js";
 
 class UnauthenticatedError extends CustomAPIError {
   constructor(message) {

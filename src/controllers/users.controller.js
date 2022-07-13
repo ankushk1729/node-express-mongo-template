@@ -1,57 +1,34 @@
 import { StatusCodes } from "http-status-codes";
-import { BadRequestError, NotFoundError } from "../errors/index.js";
-import User from "../models/User.js";
-import Content from "../models/Content.js";
-import mongoose from "mongoose";
+import { checkUsernameDuplicate, deleteSingleUser, getAllUsersData, getCurrentUserInfo, getSingleUser, getSingleUserContents, updateCurrentUser } from "../services/user.service.js";
 
 const getUser = async (req, res) => {
-  const { id } = req.params;
-  const user = await User.findById(id).select("-password");
-
-  if (!user) throw new NotFoundError(`No user with id ${id}`);
+  
+  const user = await getSingleUser(req)
 
   res.status(StatusCodes.OK).json({ user });
 };
 
 const getAllUsers = async (req, res) => {
-  const users = await User.find({}).select("-password");
+  const users = await getAllUsersData(req)
   res.status(StatusCodes.OK).json({ users, count: users.length });
 };
 
 const getUserContents = async (req, res) => {
-  const { id: stringId } = req.params;
+  
+  const contents = await getSingleUserContents(req)
 
-  const id = mongoose.Types.ObjectId(stringId);
-
-  const isUser = await User.exists({ _id: id });
-  if (!isUser) throw new NotFoundError(`No user with id ${id}`);
-
-  const contents = await Content.find({ createdBy: id });
-
-  res.status(StatusCodes.OK).json({ user: id, contents });
+  res.status(StatusCodes.OK).json({ user: req.user.id, contents });
 };
 
 const deleteUser = async (req, res) => {
-  const { id } = req.params;
-
-  const isUser = await User.exists({ _id: id });
-
-  if (!isUser) throw new NotFoundError(`No user with id, ${id}`);
-
-  const user = await User.findById(id);
-
-  if (user.role === "admin")
-    throw new BadRequestError(`Can't remove the user with id, ${id}`);
-
-  await User.deleteOne({ _id: id });
+  await deleteSingleUser(req)
 
   res.status(StatusCodes.OK).json({ msg: "User deleted" });
 };
 
 const checkUsername = async (req, res) => {
-  const { username } = req.query;
-  const user = await User.findOne({ username });
-  if (!user) {
+  const isUserExists = await checkUsernameDuplicate(req)
+  if (!isUserExists) {
     res.status(StatusCodes.OK).json({ available: true });
     return;
   }
@@ -59,24 +36,12 @@ const checkUsername = async (req, res) => {
 };
 
 const getCurrentUser = async (req, res) => {
-  const {
-    user: { username },
-  } = req;
-  const user = await User.findOne({ username }).select("-password");
-
-  if (!user) throw new NotFoundError(`No user with username ${username}`);
-
+  const user = await getCurrentUserInfo(req)
   res.status(StatusCodes.OK).json({ user });
 };
 
 const updateUser = async (req, res) => {
-  const { bio } = req.body; // add other properties here
-
-  const user = await User.findByIdAndUpdate(
-    req.user.id,
-    { bio },
-    { new: true }
-  ).select("-password");
+  const user = await updateCurrentUser(req)
 
   res.status(StatusCodes.OK).json({ user });
 };

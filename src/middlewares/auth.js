@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { UnauthenticatedError } from "../errors/index.js";
+import UnauthenticatedError from "../errors/unauthenticated.js";
 
 export const auth = async (req, res, next) => {
   const authHeader = req.headers.authorization;
