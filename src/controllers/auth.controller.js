@@ -18,19 +18,5 @@ const login = async (req, res) => {
     .json({ user });
 };
 
-const verifyToken = async (req, res) => {
-  const token = req.body.token;
-  try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = {
-      username: payload.username,
-      email: payload.email,
-      role: payload.role,
-    };
-    return res.status(200).json({ verified: true });
-  } catch (error) {
-    return res.status(200).json({ verified: false });
-  }
-};
 
 export { login, register, verifyToken }
