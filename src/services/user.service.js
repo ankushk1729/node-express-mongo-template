@@ -5,7 +5,7 @@ import mongoose from 'mongoose'
 import NotFoundError from '../errors/notFound.js';
 import BadRequestError from '../errors/badRequest.js';
 
-const getSingleUser = async (req) => {
+const getSingleUserData = async (req) => {
     const { id } = req.params;
     const user = await User.findById(id).select("-password");
 
@@ -19,7 +19,7 @@ const getAllUsersData = async (req) => {
     return users
 }
 
-const getSingleUserContents = async (req) => {
+const getSingleUserContentsData = async (req) => {
     const { id: stringId } = req.params;
 
     const id = mongoose.Types.ObjectId(stringId);
@@ -32,7 +32,7 @@ const getSingleUserContents = async (req) => {
     return contents
 }
 
-const deleteSingleUser = async (req) => {
+const deleteSingleUserData = async (req) => {
     const { id } = req.params;
 
     const isUser = await User.exists({ _id: id });
@@ -53,7 +53,7 @@ const checkUsernameDuplicate = async (req) => {
     return isUserExists
 }
 
-const getCurrentUserInfo = async (req) => {
+const getCurrentUserData = async (req) => {
     const {
         user: { username },
     } = req;
@@ -65,7 +65,7 @@ const getCurrentUserInfo = async (req) => {
 
 }
 
-const updateCurrentUser = async (req) => {
+const updateCurrentUserData = async (req) => {
     const { bio } = req.body; // add other properties here
 
     const user = await User.findByIdAndUpdate(
@@ -77,4 +77,4 @@ const updateCurrentUser = async (req) => {
     return user
 }
 
-export { getSingleUser, getAllUsersData, getSingleUserContents, deleteSingleUser, checkUsernameDuplicate, getCurrentUserInfo, updateCurrentUser }
+export { getSingleUserData, getAllUsersData, getSingleUserContentsData, deleteSingleUserData, checkUsernameDuplicate, getCurrentUserData, updateCurrentUserData }

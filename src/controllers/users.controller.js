@@ -1,9 +1,9 @@
 import { StatusCodes } from "http-status-codes";
-import { checkUsernameDuplicate, deleteSingleUser, getAllUsersData, getCurrentUserInfo, getSingleUser, getSingleUserContents, updateCurrentUser } from "../services/user.service.js";
+import { checkUsernameDuplicate, deleteSingleUserData, getAllUsersData, getCurrentUserData, getSingleUserData, getSingleUserContentsData, updateCurrentUserData } from "../services/user.service.js";
 
 const getUser = async (req, res) => {
   
-  const user = await getSingleUser(req)
+  const user = await getSingleUserData(req)
 
   res.status(StatusCodes.OK).json({ user });
 };
@@ -15,13 +15,13 @@ const getAllUsers = async (req, res) => {
 
 const getUserContents = async (req, res) => {
   
-  const contents = await getSingleUserContents(req)
+  const contents = await getSingleUserContentsData(req)
 
   res.status(StatusCodes.OK).json({ user: req.user.id, contents });
 };
 
 const deleteUser = async (req, res) => {
-  await deleteSingleUser(req)
+  await deleteSingleUserData(req)
 
   res.status(StatusCodes.OK).json({ msg: "User deleted" });
 };
@@ -36,12 +36,12 @@ const checkUsername = async (req, res) => {
 };
 
 const getCurrentUser = async (req, res) => {
-  const user = await getCurrentUserInfo(req)
+  const user = await getCurrentUserData(req)
   res.status(StatusCodes.OK).json({ user });
 };
 
 const updateUser = async (req, res) => {
-  const user = await updateCurrentUser(req)
+  const user = await updateCurrentUserData(req)
 
   res.status(StatusCodes.OK).json({ user });
 };

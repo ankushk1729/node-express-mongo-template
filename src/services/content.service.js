@@ -7,7 +7,7 @@ import BadRequestError from '../errors/badRequest.js';
 import checkPermissions from '../utils/checkPermissions.js';
 
 
-const getSingleContent = async (req) => {
+const getSingleContentData = async (req) => {
     const {
         params: { id: contentId },
     } = req;
@@ -38,7 +38,7 @@ const getAllContentsData = async (req) => {
 }
 */
 
-const createSingleContent = async (req) => {
+const createSingleContentData = async (req) => {
     req.body.createdBy = mongoose.Types.ObjectId(req.user.id);
 
     const content = await Content.create(req.body);
@@ -46,7 +46,7 @@ const createSingleContent = async (req) => {
     return content
 }
 
-const deleteSingleContent = async (req) => {
+const deleteSingleContentData = async (req) => {
     const {
         user: { username },
         params: { id: contentId },
@@ -62,7 +62,7 @@ const deleteAllContentsData = async (req) => {
     await Content.deleteMany({});
 }
 
-const updateContentInfo = async (req) => {
+const updateContentData = async (req) => {
     const { id } = req.params;
 
     const { text } = req.body; // ...other properties
@@ -76,4 +76,4 @@ const updateContentInfo = async (req) => {
     return content
 }
 
-export { getSingleContent, getPaginatedContentsData, createSingleContent, deleteSingleContent, deleteAllContentsData, updateContentInfo }
+export { getSingleContentData, getPaginatedContentsData, createSingleContentData, deleteSingleContentData, deleteAllContentsData, updateContentData }
