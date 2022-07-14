@@ -3,19 +3,23 @@
 
 A template to get started with creating REST APIs using NodeJs, ExpressJS, MongoDB with JWT for authentication.
 
-## Folder Structure
+## Folder Structure 
 
+```
+.
+└── src
+    ├── controllers
+    ├── db
+    ├── errors
+    ├── middlewares
+    ├── models
+    ├── routes
+    ├── services
+    ├── utils
+    └── app.js
+├── package.json
 
-- [**src**](src)
-    - [**controllers**](src/controllers)
-    - [**db**](src/db)
-    - [**errors**](src/errors)
-    - [**middlewares**](src/middlewares)
-    - [**models**](src/models)
-    - [**routes**](src/routes)
-    - [**services**](src/services)
-    - [**utils**](src/utils)
-
+```
 
 ## Installation ⚙️
 
