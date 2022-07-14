@@ -7,7 +7,7 @@ A template to get started with creating REST APIs using NodeJs, ExpressJS, Mongo
 
 
 
-## Installation
+## Installation ⚙️
 
 Git clone the repository and run npm install
 
@@ -27,7 +27,7 @@ To run this project, you will need to add the following environment variables to
 `MONGO_URI`
 
 
-## Run Locally
+## Run Locally 🚀
 
 
 Start the server in development mode
